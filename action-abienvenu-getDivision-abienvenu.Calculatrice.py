@@ -6,8 +6,11 @@ from lib import listen_mqtt, get_terms, humaniser
 
 def subscribe_intent_callback(hermes, intentMessage):
     (a, b) = get_terms(intentMessage)
-    resultat = humaniser(a / b)
-    result = "{} divisé par {} égal {}".format(a, b, resultat)
+    if b != 0:
+        resultat = humaniser(a / b)
+        result = "{} divisé par {} égal {}".format(a, b, resultat)
+    else:
+        result = "Diviser par zéro n'est pas possible"
     hermes.publish_end_session(intentMessage.session_id, result)
 
 
