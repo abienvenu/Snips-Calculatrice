@@ -3,8 +3,8 @@
 
 import configparser
 import io
-
-CONFIGURATION_ENCODING_FORMAT = "utf-8"
+from hermes_python.hermes import Hermes
+from hermes_python.ffi.utils import MqttOptions
 
 
 class SnipsConfigParser(configparser.SafeConfigParser):
@@ -18,11 +18,11 @@ class SnipsConfigParser(configparser.SafeConfigParser):
         }
 
 
-def read_configuration_file(configuration_file):
+def read_configuration_file():
     try:
         with io.open(
-            configuration_file,
-            encoding=CONFIGURATION_ENCODING_FORMAT
+            "config.ini",
+            encoding="utf-8"
         ) as f:
             conf_parser = SnipsConfigParser()
             conf_parser.readfp(f)
@@ -31,7 +31,23 @@ def read_configuration_file(configuration_file):
         return dict()
 
 
-def integeriser(nombre):
+def listen_mqtt(intentName, callback):
+    mqtt_opts = MqttOptions()
+    with Hermes(mqtt_options=mqtt_opts) as h:
+        h.subscribe_intent(
+            intentName,
+            callback
+        ).start()
+
+
+def humaniser(nombre):
+    nombre = round(nombre, 4)
     if str(nombre)[-2:] == ".0":
         nombre = int(nombre)
     return nombre
+
+
+def get_terms(intentMessage):
+    firstTerm = humaniser(intentMessage.slots.firstTerm.first().value)
+    secondTerm = humaniser(intentMessage.slots.secondTerm.first().value)
+    return (firstTerm, secondTerm)
