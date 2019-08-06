@@ -71,7 +71,6 @@ def division(a, b):
 
 
 def intent_callback(hermes, intentMessage):
-    (a, b) = get_terms(intentMessage.slots)
     functions = {
         "getAddition": addition,
         "getSoustraction": soustraction,
@@ -82,9 +81,9 @@ def intent_callback(hermes, intentMessage):
     f = functions.get(
         intentMessage.intent.intent_name.replace("abienvenu:", "")
     )
-    result = f(a, b) if f else None
-
-    if result is not None:
+    if f:
+        (a, b) = get_terms(intentMessage.slots)
+        result = f(a, b)
         hermes.publish_end_session(intentMessage.session_id, result)
 
 
